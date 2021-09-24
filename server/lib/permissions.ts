@@ -19,6 +19,7 @@ export enum Permission {
   AUTO_APPROVE_4K_TV = 131072,
   REQUEST_MOVIE = 262144,
   REQUEST_TV = 524288,
+  RECENT_VIEW = 1048576,
 }
 
 export interface PermissionCheckOptions {

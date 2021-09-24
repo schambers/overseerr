@@ -49,6 +49,9 @@ export const messages = defineMessages({
     'Grant permission to use advanced request options.',
   viewrequests: 'View Requests',
   viewrequestsDescription: "Grant permission to view other users' requests.",
+  viewrecent: 'View Recently Added',
+  viewrecentDescription:
+    'Grant permission to view the list of recently added media.',
 });
 
 interface PermissionEditProps {
@@ -102,6 +105,12 @@ export const PermissionEdit: React.FC<PermissionEditProps> = ({
           name: intl.formatMessage(messages.viewrequests),
           description: intl.formatMessage(messages.viewrequestsDescription),
           permission: Permission.REQUEST_VIEW,
+        },
+        {
+          id: 'viewrecent',
+          name: intl.formatMessage(messages.viewrecent),
+          description: intl.formatMessage(messages.viewrecentDescription),
+          permission: Permission.RECENT_VIEW,
         },
       ],
     },
