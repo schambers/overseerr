@@ -35,50 +35,197 @@ const messages = defineMessages({
   requesteddate: 'Requested',
   modified: 'Modified',
   modifieduserdate: '{date} by {user}',
-  mediaerror: 'The associated title for this request is no longer available.',
+  mediaerror: 'Data for this {mediaType} is no longer available.',
+  mediatypemovie: 'movie',
+  mediatypeseries: 'series',
+  mediatypefallback: 'request',
   editrequest: 'Edit Request',
   deleterequest: 'Delete Request',
   cancelRequest: 'Cancel Request',
+  tmdbid: 'TMDb ID',
+  tvdbid: 'TVDB ID',
 });
 
 const isMovie = (movie: MovieDetails | TvDetails): movie is MovieDetails => {
   return (movie as MovieDetails).title !== undefined;
 };
 
-interface RequestItemErroProps {
-  mediaId?: number;
+interface RequestItemErrorProps {
+  requestData?: MediaRequest;
   revalidateList: () => void;
 }
 
-const RequestItemError: React.FC<RequestItemErroProps> = ({
-  mediaId,
+const RequestItemError: React.FC<RequestItemErrorProps> = ({
+  requestData,
   revalidateList,
 }) => {
   const intl = useIntl();
   const { hasPermission } = useUser();
 
   const deleteRequest = async () => {
-    await axios.delete(`/api/v1/media/${mediaId}`);
+    await axios.delete(`/api/v1/media/${requestData?.media.id}`);
     revalidateList();
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-64 px-10 bg-gray-800 lg:flex-row ring-1 ring-red-500 rounded-xl xl:h-32">
-      <span className="text-sm text-center text-gray-300 lg:text-left">
-        {intl.formatMessage(messages.mediaerror)}
-      </span>
-      {hasPermission(Permission.MANAGE_REQUESTS) && mediaId && (
-        <div className="mt-4 lg:ml-4 lg:mt-0">
+    <div className="flex flex-col justify-center w-full h-64 py-4 text-gray-400 bg-gray-800 shadow-md ring-1 ring-red-500 rounded-xl xl:h-32 xl:flex-row">
+      <div className="flex flex-col justify-between w-full overflow-hidden sm:flex-row">
+        <div className="flex flex-col justify-center w-full pl-4 pr-4 overflow-hidden xl:w-7/12 2xl:w-2/3 sm:pr-0">
+          <div className="flex text-lg font-bold text-white xl:text-xl">
+            {intl.formatMessage(messages.mediaerror, {
+              mediaType: intl.formatMessage(
+                requestData?.type
+                  ? requestData?.type === 'movie'
+                    ? messages.mediatypemovie
+                    : messages.mediatypeseries
+                  : messages.mediatypefallback
+              ),
+            })}
+          </div>
+          {requestData && hasPermission(Permission.MANAGE_REQUESTS) && (
+            <>
+              <div className="card-field">
+                <span className="card-field-name">
+                  {intl.formatMessage(messages.tmdbid)}
+                </span>
+                <span className="flex text-sm text-gray-300 truncate">
+                  {requestData.media.tmdbId}
+                </span>
+              </div>
+              {requestData.media.tvdbId && (
+                <div className="card-field">
+                  <span className="card-field-name">
+                    {intl.formatMessage(messages.tvdbid)}
+                  </span>
+                  <span className="flex text-sm text-gray-300 truncate">
+                    {requestData?.media.tvdbId}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+        <div className="flex flex-col justify-center w-full pr-4 mt-4 ml-4 overflow-hidden text-sm sm:ml-2 sm:mt-0 xl:flex-1 xl:pr-0">
+          {requestData && (
+            <>
+              <div className="card-field">
+                <span className="card-field-name">
+                  {intl.formatMessage(globalMessages.status)}
+                </span>
+                <Badge badgeType="danger">
+                  {intl.formatMessage(globalMessages.unknown)}
+                </Badge>
+              </div>
+              <div className="card-field">
+                {hasPermission(
+                  [Permission.MANAGE_REQUESTS, Permission.REQUEST_VIEW],
+                  { type: 'or' }
+                ) ? (
+                  <>
+                    <span className="card-field-name">
+                      {intl.formatMessage(messages.requested)}
+                    </span>
+                    <span className="flex text-sm text-gray-300 truncate">
+                      {intl.formatMessage(messages.modifieduserdate, {
+                        date: (
+                          <FormattedRelativeTime
+                            value={Math.floor(
+                              (new Date(requestData.createdAt).getTime() -
+                                Date.now()) /
+                                1000
+                            )}
+                            updateIntervalInSeconds={1}
+                            numeric="auto"
+                          />
+                        ),
+                        user: (
+                          <Link href={`/users/${requestData.requestedBy.id}`}>
+                            <a className="flex items-center truncate group">
+                              <img
+                                src={requestData.requestedBy.avatar}
+                                alt=""
+                                className="ml-1.5 avatar-sm"
+                              />
+                              <span className="text-sm truncate group-hover:underline">
+                                {requestData.requestedBy.displayName}
+                              </span>
+                            </a>
+                          </Link>
+                        ),
+                      })}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="card-field-name">
+                      {intl.formatMessage(messages.requesteddate)}
+                    </span>
+                    <span className="flex text-sm text-gray-300 truncate">
+                      <FormattedRelativeTime
+                        value={Math.floor(
+                          (new Date(requestData.createdAt).getTime() -
+                            Date.now()) /
+                            1000
+                        )}
+                        updateIntervalInSeconds={1}
+                        numeric="auto"
+                      />
+                    </span>
+                  </>
+                )}
+              </div>
+              {requestData.modifiedBy && (
+                <div className="card-field">
+                  <span className="card-field-name">
+                    {intl.formatMessage(messages.modified)}
+                  </span>
+                  <span className="flex text-sm text-gray-300 truncate">
+                    {intl.formatMessage(messages.modifieduserdate, {
+                      date: (
+                        <FormattedRelativeTime
+                          value={Math.floor(
+                            (new Date(requestData.updatedAt).getTime() -
+                              Date.now()) /
+                              1000
+                          )}
+                          updateIntervalInSeconds={1}
+                          numeric="auto"
+                        />
+                      ),
+                      user: (
+                        <Link href={`/users/${requestData.modifiedBy.id}`}>
+                          <a className="flex items-center truncate group">
+                            <img
+                              src={requestData.modifiedBy.avatar}
+                              alt=""
+                              className="ml-1.5 avatar-sm"
+                            />
+                            <span className="text-sm truncate group-hover:underline">
+                              {requestData.modifiedBy.displayName}
+                            </span>
+                          </a>
+                        </Link>
+                      ),
+                    })}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+      <div className="z-10 flex flex-col justify-center w-full pl-4 pr-4 mt-4 xl:mt-0 xl:items-end xl:w-96 xl:pl-0">
+        {hasPermission(Permission.MANAGE_REQUESTS) && requestData?.media.id && (
           <Button
+            className="w-full"
             buttonType="danger"
-            buttonSize="sm"
             onClick={() => deleteRequest()}
           >
             <TrashIcon />
             <span>{intl.formatMessage(messages.deleterequest)}</span>
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
@@ -158,7 +305,7 @@ const RequestItem: React.FC<RequestItemProps> = ({
   if (!title || !requestData) {
     return (
       <RequestItemError
-        mediaId={requestData?.media.id}
+        requestData={requestData}
         revalidateList={revalidateList}
       />
     );
