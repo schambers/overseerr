@@ -14,6 +14,8 @@ import {
   ExternalLinkIcon,
 } from '@heroicons/react/solid';
 import axios from 'axios';
+import { hasFlag } from 'country-flag-icons';
+import 'country-flag-icons/3x2/flags.css';
 import { uniqBy } from 'lodash';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -706,13 +708,20 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
                   {data.productionCountries.map((c) => {
                     return (
                       <span
-                        className="block"
+                        className="flex items-center justify-end"
                         key={`prodcountry-${c.iso_3166_1}`}
                       >
-                        {intl.formatDisplayName(c.iso_3166_1, {
-                          type: 'region',
-                          fallback: 'none',
-                        }) ?? c.name}
+                        {hasFlag(c.iso_3166_1) && (
+                          <span
+                            className={`mr-1.5 text-xs leading-5 flag:${c.iso_3166_1}`}
+                          />
+                        )}
+                        <span>
+                          {intl.formatDisplayName(c.iso_3166_1, {
+                            type: 'region',
+                            fallback: 'none',
+                          }) ?? c.name}
+                        </span>
                       </span>
                     );
                   })}
