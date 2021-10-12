@@ -725,6 +725,7 @@
   "components.UserList.lastupdated": "Updated",
   "components.UserList.localLoginDisabled": "The <strong>Enable Local Sign-In</strong> setting is currently disabled.",
   "components.UserList.localuser": "Local User",
+  "components.UserList.newplexsigninenabled": "The <strong>Enable New Plex Sign-In</strong> setting is currently enabled. Plex users with library access do not need to be imported in order to sign in.",
   "components.UserList.nouserstoimport": "There are no users to import from Plex.",
   "components.UserList.owner": "Owner",
   "components.UserList.password": "Password",
