@@ -44,7 +44,7 @@ const Discover: React.FC = () => {
   return (
     <>
       <PageTitle title={intl.formatMessage(messages.discover)} />
-      {(!media || !!media.results.length) && (
+      {(!media || !!media.results.length) && !mediaError && (
         <>
           <div className="slider-header">
             <div className="slider-title">
@@ -53,8 +53,8 @@ const Discover: React.FC = () => {
           </div>
           <Slider
             sliderKey="media"
-            isLoading={!media && !mediaError}
-            isEmpty={!!media && !mediaError && media.results.length === 0}
+            isLoading={!media}
+            isEmpty={!!media && media.results.length === 0}
             items={(media?.results ?? []).map((item) => (
               <TmdbTitleCard
                 key={`media-slider-item-${item.id}`}
@@ -65,7 +65,7 @@ const Discover: React.FC = () => {
           />
         </>
       )}
-      {(!requests || !!requests.results.length) && (
+      {(!requests || !!requests.results.length) && !requestError && (
         <>
           <div className="slider-header">
             <Link href="/requests?filter=all">
@@ -77,10 +77,8 @@ const Discover: React.FC = () => {
           </div>
           <Slider
             sliderKey="requests"
-            isLoading={!requests && !requestError}
-            isEmpty={
-              !!requests && !requestError && requests.results.length === 0
-            }
+            isLoading={!requests}
+            isEmpty={!!requests && requests.results.length === 0}
             items={(requests?.results ?? []).map((request) => (
               <RequestCard
                 key={`request-slider-item-${request.id}`}

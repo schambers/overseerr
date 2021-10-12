@@ -234,7 +234,8 @@ const UserProfile: React.FC = () => {
           [Permission.MANAGE_REQUESTS, Permission.REQUEST_VIEW],
           { type: 'or' }
         )) &&
-        (!requests || !!requests.results.length) && (
+        (!requests || !!requests.results.length) &&
+        !requestError && (
           <>
             <div className="slider-header">
               <Link
@@ -252,10 +253,8 @@ const UserProfile: React.FC = () => {
             </div>
             <Slider
               sliderKey="requests"
-              isLoading={!requests && !requestError}
-              isEmpty={
-                !!requests && !requestError && requests.results.length === 0
-              }
+              isLoading={!requests}
+              isEmpty={!!requests && requests.results.length === 0}
               items={(requests?.results ?? []).map((request) => (
                 <RequestCard
                   key={`request-slider-item-${request.id}`}
