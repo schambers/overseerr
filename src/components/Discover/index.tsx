@@ -44,44 +44,54 @@ const Discover: React.FC = () => {
   return (
     <>
       <PageTitle title={intl.formatMessage(messages.discover)} />
-      <div className="slider-header">
-        <div className="slider-title">
-          <span>{intl.formatMessage(messages.recentlyAdded)}</span>
-        </div>
-      </div>
-      <Slider
-        sliderKey="media"
-        isLoading={!media && !mediaError}
-        isEmpty={!!media && !mediaError && media.results.length === 0}
-        items={media?.results?.map((item) => (
-          <TmdbTitleCard
-            key={`media-slider-item-${item.id}`}
-            tmdbId={item.tmdbId}
-            type={item.mediaType}
+      {(!media || !!media.results.length) && (
+        <>
+          <div className="slider-header">
+            <div className="slider-title">
+              <span>{intl.formatMessage(messages.recentlyAdded)}</span>
+            </div>
+          </div>
+          <Slider
+            sliderKey="media"
+            isLoading={!media && !mediaError}
+            isEmpty={!!media && !mediaError && media.results.length === 0}
+            items={(media?.results ?? []).map((item) => (
+              <TmdbTitleCard
+                key={`media-slider-item-${item.id}`}
+                tmdbId={item.tmdbId}
+                type={item.mediaType}
+              />
+            ))}
           />
-        ))}
-      />
-      <div className="slider-header">
-        <Link href="/requests?filter=all">
-          <a className="slider-title">
-            <span>{intl.formatMessage(messages.recentrequests)}</span>
-            <ArrowCircleRightIcon />
-          </a>
-        </Link>
-      </div>
-      <Slider
-        sliderKey="requests"
-        isLoading={!requests && !requestError}
-        isEmpty={!!requests && !requestError && requests.results.length === 0}
-        items={(requests?.results ?? []).map((request) => (
-          <RequestCard
-            key={`request-slider-item-${request.id}`}
-            request={request}
+        </>
+      )}
+      {(!requests || !!requests.results.length) && (
+        <>
+          <div className="slider-header">
+            <Link href="/requests?filter=all">
+              <a className="slider-title">
+                <span>{intl.formatMessage(messages.recentrequests)}</span>
+                <ArrowCircleRightIcon />
+              </a>
+            </Link>
+          </div>
+          <Slider
+            sliderKey="requests"
+            isLoading={!requests && !requestError}
+            isEmpty={
+              !!requests && !requestError && requests.results.length === 0
+            }
+            items={(requests?.results ?? []).map((request) => (
+              <RequestCard
+                key={`request-slider-item-${request.id}`}
+                request={request}
+              />
+            ))}
+            placeholder={<RequestCard.Placeholder />}
+            emptyMessage={intl.formatMessage(messages.noRequests)}
           />
-        ))}
-        placeholder={<RequestCard.Placeholder />}
-        emptyMessage={intl.formatMessage(messages.noRequests)}
-      />
+        </>
+      )}
       <MediaSlider
         sliderKey="trending"
         title={intl.formatMessage(messages.trending)}
